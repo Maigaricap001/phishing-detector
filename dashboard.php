@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Phishing Detection Dashboard</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f7f9;
+            margin: 0;
+            padding: 0;
+            display: flex;
+        }
+
+        .sidebar {
+            width: 225px;
+            background-color: #2c3e50;
+            color: #fff;
+            padding: 20px;
+            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+        }
+
+        .sidebar h2 {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #ecf0f1;
+            font-size: 1.8em;
+            border-bottom: 2px solid #34495e;
+            padding-bottom: 15px;
+        }
+
+        .sidebar ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .sidebar ul li {
+            margin-bottom: 10px;
+        }
+
+        .sidebar ul li a {
+            color: #ecf0f1;
+            text-decoration: none;
+            display: block;
+            padding: 15px 20px;
+            border-radius: 8px;
+            transition: background-color 0.3s ease;
+        }
+
+        .sidebar ul li a:hover {
+            background-color: #34495e;
+        }
+
+        .sidebar ul li a i {
+            margin-right: 15px;
+            font-size: 1.1em;
+        }
+        
+        .main-container {
+            margin-left: 250px;
+            padding: 20px;
+            width: calc(100% - 250px);
+        }
+
+        .dashboard-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #ddd;
+            margin-bottom: 20px;
+        }
+
+        .dashboard-header h1 {
+            margin: 0;
+            font-size: 2.2em;
+            color: #2c3e50;
+        }
+
+        .dashboard-header .date-time {
+            font-size: 1em;
+            color: #7f8c8d;
+        }
+
+        .kpi-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .kpi-card {
+            background-color: #fff;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+            text-align: center;
+            transition: transform 0.3s ease;
+        }
+
+        .kpi-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .kpi-card .icon {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            color: #3498db;
+        }
+
+        .kpi-card .value {
+            font-size: 2em;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+
+        .kpi-card .label {
+            font-size: 1em;
+            color: #7f8c8d;
+            margin-top: 5px;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 20px;
+        }
+
+        .charts-section, .threats-section, .manual-scan, .mitigation-guide {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+        }
+
+        .charts-section h2, .threats-section h2, .manual-scan h2, .mitigation-guide h2 {
+            margin-top: 0;
+            font-size: 1.5em;
+            color: #2c3e50;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 10px;
+            margin-bottom: 15px;
+        }
+
+        .chart-placeholder {
+            height: 250px;
+            background-color: #ecf0f1;
+            border-radius: 8px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.2em;
+            color: #7f8c8d;
+            margin-bottom: 20px;
+        }
+
+        .threats-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .threat-item {
+            display: flex;
+            align-items: center;
+            padding: 15px 0;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .threat-item:last-child {
+            border-bottom: none;
+        }
+
+        .threat-item .icon {
+            color: #e74c3c;
+            font-size: 1.5em;
+            margin-right: 15px;
+        }
+
+        .threat-item .threat-info {
+            flex-grow: 1;
+        }
+
+        .threat-item .threat-info .url {
+            font-weight: bold;
+            color: #333;
+            word-break: break-all;
+        }
+
+        .threat-item .threat-info .time {
+            font-size: 0.9em;
+            color: #95a5a6;
+        }
+
+        .threat-item .status-tag {
+            background-color: #e74c3c;
+            color: #fff;
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-size: 0.8em;
+        }
+
+        .manual-scan .input-group {
+            position: relative;
+            margin-bottom: 15px;
+        }
+
+        .manual-scan input {
+            width: calc(100% - 40px);
+            padding: 12px 20px 12px 40px;
+            border: 2px solid #ddd;
+            border-radius: 25px;
+            font-size: 1em;
+        }
+
+        .manual-scan .input-group .icon {
+            position: absolute;
+            top: 50%;
+            left: 15px;
+            transform: translateY(-50%);
+            color: #999;
+        }
+
+        .manual-scan button {
+            background-color: #007BFF;
+            color: #fff;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 25px;
+            font-size: 1em;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        
+        .manual-scan button:hover {
+            background-color: #0056b3;
+        }
+
+        .mitigation-guide ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .mitigation-guide ul li {
+            background-color: #ecf0f1;
+            margin-bottom: 10px;
+            padding: 15px;
+            border-left: 5px solid #3498db;
+            border-radius: 5px;
+        }
+
+        .mitigation-guide ul li strong {
+            display: block;
+            font-size: 1.1em;
+            margin-bottom: 5px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="sidebar">
+        <h2><i class="fas fa-shield-alt"></i> Dashboard</h2>
+        <ul>
+            <li><a href="#overview"><i class="fas fa-chart-line"></i> Overview</a></li>
+            <li><a href="phishing detect.php"><i class="fas fa-search-plus"></i> Detect Phishing</a></li>
+            <li><a href="manage account.php"><i class="fas fa-user-circle"></i> Manage Account</a></li>
+            <li><a href="guide.php"><i class="fas fa-book"></i> Mitigation Guide</a></li>
+        </ul>
+    </div>
+
+    <div class="main-container">
+        <div class="dashboard-header">
+            <h1>Dashboard Overview</h1>
+            <div class="date-time">
+                <span id="currentDateTime"></span>
+            </div>
+        </div>
+
+        <div id="overview" class="content-section">
+            <div class="kpi-cards">
+                <div class="kpi-card">
+                    <div class="icon"><i class="fas fa-link"></i></div>
+                    <div class="value">15,432</div>
+                    <div class="label">Total URLs Analyzed</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="icon" style="color: #e74c3c;"><i class="fas fa-skull-crossbones"></i></div>
+                    <div class="value">345</div>
+                    <div class="label">Phishing Attempts Detected</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="icon" style="color: #27ae60;"><i class="fas fa-check-circle"></i></div>
+                    <div class="value">98.7%</div>
+                    <div class="label">Detection Accuracy</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="icon" style="color: #f39c12;"><i class="fas fa-filter"></i></div>
+                    <div class="value">95.4%</div>
+                    <div class="label">Threats Blocked</div>
+                </div>
+            </div>
+            <div class="main-content">
+                <div class="charts-section">
+                    <h2>Threat Trends</h2>
+                    <div class="chart-placeholder">
+                        <p>Line Chart of Daily Phishing Attempts</p>
+                    </div>
+                    <h2>Top Impersonated Brands</h2>
+                    <div class="chart-placeholder">
+                        <p>Bar Chart of Brand Impersonations</p>
+                    </div>
+                </div>
+                <div class="threats-section">
+                    <h2>Recently Detected Threats</h2>
+                    <ul class="threats-list">
+                        <li class="threat-item">
+                            <div class="icon"><i class="fas fa-exclamation-circle"></i></div>
+                            <div class="threat-info">
+                                <div class="url">https://www.paypal-secure-login.net/login</div>
+                                <div class="time">10 minutes ago</div>
+                            </div>
+                            <span class="status-tag">Phishing</span>
+                        </li>
+                        <li class="threat-item">
+                            <div class="icon"><i class="fas fa-exclamation-circle"></i></div>
+                            <div class="threat-info">
+                                <div class="url">https://amaz0n-giftcard.co/claim</div>
+                                <div class="time">35 minutes ago</div>
+                            </div>
+                            <span class="status-tag">Phishing</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div id="detect-phishing" class="content-section" style="display:none;">
+            <div class="manual-scan">
+                <h2><i class="fas fa-search"></i> Detect Phishing</h2>
+                <p>Paste a URL or a block of text to scan for potential phishing attempts.</p>
+                <div class="input-group">
+                    <i class="fas fa-link icon"></i>
+                    <input type="text" id="scanInput" placeholder="Enter URL or text to analyze...">
+                </div>
+                <button onclick="performScan()"><i class="fas fa-play-circle"></i> Scan Now</button>
+            </div>
+        </div>
+
+        <div id="manage-account" class="content-section" style="display:none;">
+            <div class="manual-scan">
+                <h2><i class="fas fa-user-shield"></i> Manage Account</h2>
+                <p>Monitor your account for suspicious activity and secure it with best practices.</p>
+                <div class="info-card">
+                    <h3><i class="fas fa-lock"></i> Check for Compromised Credentials</h3>
+                    <p>Enter your username or email to see if your credentials have been found in known data breaches.</p>
+                    <div class="input-group">
+                        <i class="fas fa-envelope icon"></i>
+                        <input type="email" id="breachCheckInput" placeholder="Enter your email or username...">
+                    </div>
+                    <button onclick="checkBreach()"><i class="fas fa-database"></i> Check Breach</button>
+                </div>
+                <div class="info-card" style="margin-top: 20px;">
+                    <h3><i class="fas fa-key"></i> Enable Two-Factor Authentication (2FA)</h3>
+                    <p>Enabling 2FA adds a critical layer of security to your accounts. You can enable it on supported services.</p>
+                </div>
+            </div>
+        </div>
+
+        <div id="mitigation" class="content-section" style="display:none;">
+            <div class="mitigation-guide">
+                <h2><i class="fas fa-book-open"></i> Phishing Mitigation Guide</h2>
+                <p>Educate yourself and your team on how to recognize and prevent phishing attacks.</p>
+                <ul>
+                    <li>
+                        <strong><i class="fas fa-mouse-pointer"></i> Don't Click Suspicious Links</strong>
+                        <p>Hover over links to see the real URL. Look for misspellings, strange domains, and unexpected characters.</p>
+                    </li>
+                    <li>
+                        <strong><i class="fas fa-question-circle"></i> Verify the Sender</strong>
+                        <p>Always double-check the sender's email address. Phishers often use addresses that look similar to a real one.</p>
+                    </li>
+                    <li>
+                        <strong><i class="fas fa-lock-open"></i> Use Multi-Factor Authentication (MFA)</strong>
+                        <p>MFA requires a second form of verification, making it much harder for attackers to access your account even if they steal your password.</p>
+                    </li>
+                    <li>
+                        <strong><i class="fas fa-desktop"></i> Keep Software Updated</strong>
+                        <p>Regularly update your operating system and web browsers to patch security vulnerabilities.</p>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function updateDateTime() {
+            const now = new Date();
+            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: 'numeric', minute: 'numeric', second: 'numeric', hour12: false };
+            document.getElementById('currentDateTime').textContent = now.toLocaleDateString('en-US', options);
+        }
+        setInterval(updateDateTime, 1000);
+        updateDateTime();
+
+        function showSection(sectionId) {
+            document.querySelectorAll('.content-section').forEach(section => {
+                section.style.display = 'none';
+            });
+            document.getElementById(sectionId).style.display = 'block';
+        }
+
+        // Initial view
+        document.addEventListener('DOMContentLoaded', () => {
+            showSection('overview');
+        });
+    </script>
+</body>
+</html>
+
